@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    ul li {
+      list-style: none;
+    }
+
+    .slider {
+      width: 1484px;
+      height: 500px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slider .list {
+      position: absolute;
+    }
+
+    .slider .list .item {
+      width: 1484px;
+      height: 500px;
+      float: left;
+    }
+
+    .slider .list .item img {
+      width: 1484px;
+      height: 500px;
+      display: block;
+    }
+
+    .slider button {
+      position: absolute;
+      bottom: 0;
+    }
+
+    .slider .prev {
+      left: 0;
+      height: 50px;
+      width: 100px;
+    }
+
+    .slider .next {
+      right: 0;
+      height: 50px;
+      width: 100px;
+    }
+
+    .slider .pagination .bullet {
+      width: 30px;
+      height: 30px;
+      background-color: black;
+      margin-left: 5px;
+      float: left;
+    }
+
+    .slider .pagination .bullet.focus {
+      background-color: white;
+    }
+
+    .slider .pagination {
+      position: relative;
+      top: 460px;
+      left: 685px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="slider">
+    <ul class="list">
+      <li class="item"><img src="img/1.png" alt=""></li>
+      <li class="item"><img src="img/2.png" alt=""></li>
+      <li class="item"><img src="img/3.png" alt=""></li>
+      <li class="item"><img src="img/4.png" alt=""></li>
+    </ul>
+    <button class="prev">prev</button>
+    <button class="next">next</button>
+    <ul class="pagination">
+      <li class="bullet focus"></li>
+      <li class="bullet"></li>
+      <li class="bullet"></li>
+      <li class="bullet"></li>
+    </ul>
+  </div>
+  <script src="tool.js"></script>
+  <script>
+    (function () {
+      var currIndex;
+      var lis;
+      var liWidth;
+      var len;
+      var id;
+      init();
+
+
+      function init() {
+        currIndex = 1;
+        var li_first = document.querySelector('.slider .list .item:first-of-type');
+        var copy_first = li_first.cloneNode(true);
+        var li_last = document.querySelector('.slider .list .item:last-of-type');
+        var copy_last = li_last.cloneNode(true);
+
+
+        var list = document.querySelector('.slider .list');
+        list.appendChild(copy_first);
+        list.insertBefore(copy_last, li_first);
+
+        lis = document.querySelectorAll('.list .item');
+        liWidth = lis[0].offsetWidth; //offsetwidth获取的是盒子最终的宽
+        len = lis.length;
+
+        list.style.width = liWidth * len + 'px';
+        list.style.left = -liWidth + 'px';
+
+        document.querySelector('.prev').onclick = function () {
+          slidePrve();
+        }
+
+        document.querySelector('.next').onclick = function () {
+          slideNext();
+        }
+        var bullets = document.querySelectorAll('.slider .pagination .bullet');
+        for (var i = 0; i < bullets.length; i++) {
+          bullets[i].index = i;
+          bullets[i].onclick = function () {
+            if (currIndex === 5) {
+              list.style.left = -liWidth + 'px';
+            }
+            if (currIndex === 0) {
+              list.style.left = -4 * liWidth + 'px';
+            }
+            currIndex = this.index + 1;
+            slideTo(currIndex);
+          }
+        }
+        document.querySelector('.slider').onmouseover = function () {
+          stop();
+        }
+        document.querySelector('.slider').onmouseout = function () {
+          auto();
+        }
+        auto();
+      }
+
+      function slideNext() {
+        currIndex++;
+        slideTo(currIndex);
+      }
+
+      function slidePrve() {
+        currIndex--;
+        slideTo(currIndex);
+      }
+
+      function slideTo(index) {
+        var list = document.querySelector('.slider .list');
+        if (index === len) {
+          currIndex = index = 2; //index的值影响下次跳转的图片是哪张，这里等于2下次将左转到第三张图片的位置
+          list.style.left = -liWidth + 'px'; //马上跳转到六张图片中的第二张图片的位置
+        }
+
+        if (index === -1) {
+          currIndex = index = len - 3; //index的值影响下次跳转的图片是哪张，这里等于3下次将左转到第四张图片的位置
+          list.style.left = -4 * liWidth + 'px'; //马上跳转到六张图片中的第五张图片的位置
+        }
+
+        var focusIndex;
+        var bullets = document.querySelectorAll('.pagination .bullet');
+        if (index === 0) {
+          focusIndex = bullets.length - 1;
+        } else if (index === len - 1) {
+          focusIndex = 0;
+        } else {
+          focusIndex = index - 1;
+        }
+        document.querySelector('.focus').className = 'bullet';
+        bullets[focusIndex].className = 'bullet focus';
+        var left = -index * liWidth;
+        animate(list, {
+          left: left
+        })
+      }
+
+      function auto() {
+        clearInterval(id);
+        id = setInterval(function () {
+          slideNext();
+        }, 2800)
+      }
+
+      function stop() {
+        clearInterval(id);
+      }
+    })()
+  </script>
+</body>
+
+</html>
